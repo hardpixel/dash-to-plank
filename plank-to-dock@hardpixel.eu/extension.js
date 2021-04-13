@@ -67,6 +67,13 @@ var PlankToDock = GObject.registerClass(
       return items.filter(uri => !uri.endsWith(`${APPS_ID}.desktop`))
     }
 
+    get appsLauncherUri() {
+      const home = GLib.get_home_dir()
+      const path = GLib.build_filenamev([home, '.local/share/applications', `${APPS_ID}.desktop`])
+
+      return `file://${path}`
+    }
+
     lookupApp(desktopId) {
       return this.appSystem.lookup_app(desktopId)
     }
@@ -132,6 +139,12 @@ var PlankToDock = GObject.registerClass(
       if (!this.isConnected) {
         this.appObject.activate()
       }
+
+      GLib.idle_add(GLib.PRIORITY_DEFAULT, () => {
+        if (!this.persistentApps.includes(this.appsLauncherUri)) {
+          this.addToDock(this.appsLauncherUri)
+        }
+      })
     }
 
     destroy() {
