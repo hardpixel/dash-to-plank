@@ -149,9 +149,30 @@ var PlankToDock = GObject.registerClass(
   }
 )
 
+function copyFile(file, dest) {
+  const filePath = GLib.build_filenamev([Me.path, file])
+  const fileName = GLib.path_get_basename(filePath)
+
+  const homePath = GLib.get_home_dir()
+  const destPath = GLib.build_filenamev([homePath, dest, fileName])
+
+  if (GLib.file_test(destPath, GLib.FileTest.EXISTS)) return
+
+  const contents = GLib.file_get_contents(filePath)
+
+  GLib.mkdir_with_parents(GLib.path_get_dirname(destPath), parseInt('0700', 8))
+  GLib.file_set_contents(destPath, Bytes.toString(contents[1]))
+}
+
 let plankToDock
 
 function enable() {
+  copyFile(`launchers/${APPS_ID}.desktop`, '.local/share/applications')
+  copyFile(`launchers/${APPS_ID}.svg`, '.icons/hicolor/scalable/apps')
+
+  copyFile('themes/horizontal/dock.theme', '.local/share/plank/themes/PlankToDock Horizontal')
+  copyFile('themes/vertical/dock.theme', '.local/share/plank/themes/PlankToDock Vertical')
+
   plankToDock = new PlankToDock()
   plankToDock.activate()
 }
