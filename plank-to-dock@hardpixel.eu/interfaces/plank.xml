@@ -1,0 +1,15 @@
+<node>
+  <interface name="org.freedesktop.DBus.Peer">
+    <method name="Ping"/>
+  </interface>
+  <interface name="org.gtk.Actions">
+    <method name="List">
+      <arg type="as" name="list" direction="out"></arg>
+    </method>
+    <method name="Activate">
+      <arg type="s" name="action_name" direction="in"></arg>
+      <arg type="av" name="parameter" direction="in"></arg>
+      <arg type="a{sv}" name="platform_data" direction="in"></arg>
+    </method>
+  </interface>
+</node>

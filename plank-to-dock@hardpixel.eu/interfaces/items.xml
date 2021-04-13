@@ -1,0 +1,16 @@
+<node>
+  <interface name="net.launchpad.plank.Items">
+    <method name="Add">
+      <arg type="s" name="uri" direction="in"/>
+      <arg type="b" name="result" direction="out"/>
+    </method>
+    <method name="Remove">
+      <arg type="s" name="uri" direction="in"/>
+      <arg type="b" name="result" direction="out"/>
+    </method>
+    <method name="GetPersistentApplications">
+      <arg type="as" name="result" direction="out"/>
+    </method>
+    <signal name="Changed"></signal>
+  </interface>
+</node>
