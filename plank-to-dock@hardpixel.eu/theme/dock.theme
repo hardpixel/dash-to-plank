@@ -19,11 +19,11 @@ InnerStrokeColor=120;;120;;120;;0
 
 [PlankDockTheme]
 #The padding on the left/right dock edges, in tenths of a percent of IconSize.
-HorizPadding=1
+HorizPadding={{paddingX}}
 #The padding on the top dock edge, in tenths of a percent of IconSize.
-TopPadding=6
+TopPadding={{paddingY}}
 #The padding on the bottom dock edge, in tenths of a percent of IconSize.
-BottomPadding=6
+BottomPadding={{paddingY}}
 #The padding between items on the dock, in tenths of a percent of IconSize.
 ItemPadding=12
 #The size of item indicators, in tenths of a percent of IconSize.

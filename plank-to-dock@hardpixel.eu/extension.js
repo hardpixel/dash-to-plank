@@ -30,6 +30,94 @@ function dbusProxy(filename, ...args) {
   }
 }
 
+function copyFile(file, dest, once = true, parse = val => val) {
+  const filePath = GLib.build_filenamev([Me.path, file])
+  const fileName = GLib.path_get_basename(filePath)
+
+  const homePath = GLib.get_home_dir()
+  const destPath = GLib.build_filenamev([homePath, dest, fileName])
+
+  if (once && GLib.file_test(destPath, GLib.FileTest.EXISTS)) return
+
+  const text = GLib.file_get_contents(filePath)
+  const data = parse(Bytes.toString(text[1]))
+
+  GLib.mkdir_with_parents(GLib.path_get_dirname(destPath), parseInt('0700', 8))
+  GLib.file_set_contents(destPath, data)
+}
+
+class PlankTheme {
+  constructor(settings) {
+    this.name     = 'PlankToDock'
+    this.settings = settings
+  }
+
+  get position() {
+    return this.settings.get_string('position')
+  }
+
+  get alignment() {
+    return this.settings.get_string('alignment')
+  }
+
+  get vertical() {
+    return ['left', 'right'].includes(this.position)
+  }
+
+  get panelMode() {
+    return this.alignment == 'fill'
+  }
+
+  get paddingX() {
+    return this.vertical ? (this.panelMode ? 13 : 4) : 1
+  }
+
+  get paddingY() {
+    return this.vertical ? 8 : 6
+  }
+
+  _parse(data) {
+    let value = data
+
+    value = value.replace(/{{paddingX}}/g, this.paddingX)
+    value = value.replace(/{{paddingY}}/g, this.paddingY)
+
+    return value
+  }
+
+  _update() {
+    const file = 'theme/dock.theme'
+    const dest = `.local/share/plank/themes/${this.name}`
+
+    copyFile(file, dest, false, this._parse.bind(this))
+  }
+
+  activate() {
+    this._positionHandlerID = this.settings.connect(
+      'changed::position',
+      this._update.bind(this)
+    )
+
+    this._alignmentHandlerID = this.settings.connect(
+      'changed::alignment',
+      this._update.bind(this)
+    )
+
+    this._update()
+    this.settings.set_string('theme', this.name)
+  }
+
+  destroy() {
+    if (this._positionHandlerID) {
+      this.settings.disconnect(this._positionHandlerID)
+    }
+
+    if (this._alignmentHandlerID) {
+      this.settings.disconnect(this._alignmentHandlerID)
+    }
+  }
+}
+
 var PlankToDock = GObject.registerClass(
   class PlankToDock extends GObject.Object {
     _init() {
@@ -38,6 +126,8 @@ var PlankToDock = GObject.registerClass(
       this.appObject = this.lookupApp('plank.desktop')
 
       this.itemsConf = Gio.Settings.new_with_path(SCHEMA_NAME, SCHEMA_PATH)
+      this.dockTheme = new PlankTheme(this.itemsConf)
+
       this.plankDbus = dbusProxy('plank', BUSNAME, BUSPATH)
       this.itemsDbus = dbusProxy('items', BUSNAME, `${BUSPATH}/${DOCK_ID}`)
     }
@@ -188,6 +278,8 @@ var PlankToDock = GObject.registerClass(
     }
 
     activate() {
+      this.dockTheme.activate()
+
       this._connectionHandlerID = Gio.bus_watch_name_on_connection(
         Gio.DBus.session,
         BUSNAME,
@@ -205,6 +297,7 @@ var PlankToDock = GObject.registerClass(
     }
 
     destroy() {
+      this.dockTheme.destroy()
       this._onConnectionLost()
 
       if (this._connectionHandlerID) {
@@ -217,29 +310,11 @@ var PlankToDock = GObject.registerClass(
   }
 )
 
-function copyFile(file, dest) {
-  const filePath = GLib.build_filenamev([Me.path, file])
-  const fileName = GLib.path_get_basename(filePath)
-
-  const homePath = GLib.get_home_dir()
-  const destPath = GLib.build_filenamev([homePath, dest, fileName])
-
-  if (GLib.file_test(destPath, GLib.FileTest.EXISTS)) return
-
-  const contents = GLib.file_get_contents(filePath)
-
-  GLib.mkdir_with_parents(GLib.path_get_dirname(destPath), parseInt('0700', 8))
-  GLib.file_set_contents(destPath, Bytes.toString(contents[1]))
-}
-
 let plankToDock
 
 function enable() {
   copyFile(`launchers/${APPS_ID}.desktop`, '.local/share/applications')
   copyFile(`launchers/${APPS_ID}.svg`, '.icons/hicolor/scalable/apps')
-
-  copyFile('themes/horizontal/dock.theme', '.local/share/plank/themes/PlankToDock Horizontal')
-  copyFile('themes/vertical/dock.theme', '.local/share/plank/themes/PlankToDock Vertical')
 
   plankToDock = new PlankToDock()
   plankToDock.activate()
