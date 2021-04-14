@@ -1,8 +1,8 @@
 <schemalist gettext-domain="gnome-shell-extensions">
   <schema id="org.gnome.shell.extensions.plank-to-dock" path="/org/gnome/shell/extensions/plank-to-dock/">
-    <key name="show-applications-launcher" type="b">
-      <default>true</default>
-      <summary>Show applications launcher docklet.</summary>
+    <key name="initialized" type="b">
+      <default>false</default>
+      <summary>Skip initialize.</summary>
     </key>
   </schema>
 </schemalist>

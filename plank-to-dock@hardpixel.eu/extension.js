@@ -6,6 +6,7 @@ const Shell        = imports.gi.Shell
 const Main         = imports.ui.main
 const AppFavorites = imports.ui.appFavorites
 const Me           = imports.misc.extensionUtils.getCurrentExtension()
+const Convenience  = Me.imports.convenience
 
 const DOCK_ID = 'dock1'
 const APPS_ID = 'net.launchpad.plank.AppsLauncher'
@@ -104,7 +105,6 @@ class PlankTheme {
     )
 
     this._update()
-    this.settings.set_string('theme', this.name)
   }
 
   destroy() {
@@ -121,7 +121,9 @@ class PlankTheme {
 var PlankToDock = GObject.registerClass(
   class PlankToDock extends GObject.Object {
     _init() {
+      this.settings  = Convenience.getSettings()
       this.favorites = AppFavorites.getAppFavorites()
+
       this.appSystem = Shell.AppSystem.get_default()
       this.appObject = this.lookupApp('plank.desktop')
 
@@ -213,6 +215,18 @@ var PlankToDock = GObject.registerClass(
       }
     }
 
+    _onInitialize() {
+      if (this.settings.get_boolean('initialized')) return
+
+      this.persistentApps.forEach(uri => this.removeFromDock(uri))
+
+      this.addToDock(this.appsLauncherUri)
+      this.favoriteApps.forEach(uri => this.addToDock(uri))
+
+      this.itemsConf.set_string('theme', this.dockTheme.name)
+      this.settings.set_boolean('initialized', true)
+    }
+
     _onConnectionAcquired() {
       if (!this.persistentApps.includes(this.appsLauncherUri)) {
         this.addToDock(this.appsLauncherUri)
@@ -279,6 +293,7 @@ var PlankToDock = GObject.registerClass(
 
     activate() {
       this.dockTheme.activate()
+      this._onInitialize()
 
       this._connectionHandlerID = Gio.bus_watch_name_on_connection(
         Gio.DBus.session,
