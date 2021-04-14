@@ -159,9 +159,9 @@ var PlankToDock = GObject.registerClass(
 
     get dockItems() {
       const value = this.itemsConf.get_strv('dock-items')
-      const items = value.filter(item => !item.endsWith(`${APPS_ID}.dockitem`))
+      const items = value.map(item => this.getItemUri(item))
 
-      return items.map(item => this.getUriFromItem(item))
+      return items.filter(uri => !!uri && !uri.endsWith(`${APPS_ID}.desktop`))
     }
 
     lookupApp(desktopId) {
@@ -169,11 +169,11 @@ var PlankToDock = GObject.registerClass(
     }
 
     getAppUri(app) {
-      return `file://${app.app_info.get_filename()}`
+      return app && `file://${app.app_info.get_filename()}`
     }
 
-    getUriFromItem(item) {
-      const appId = item.replace(/dockitem$/, 'desktop')
+    getItemUri(item) {
+      const appId = item.replace(/\.dockitem$/, '.desktop')
       return this.getAppUri(this.lookupApp(appId))
     }
 
