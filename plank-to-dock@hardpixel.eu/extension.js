@@ -226,6 +226,17 @@ var PlankToDock = GObject.registerClass(
       }
     }
 
+    _copyAppsLauncherFiles() {
+      const deskFile = `launchers/${APPS_ID}.desktop`
+      const deskPath = '.local/share/applications'
+
+      const iconFile = `launchers/${APPS_ID}.svg`
+      const iconPath = '.icons/hicolor/scalable/apps'
+
+      copyFile(deskFile, deskPath)
+      copyFile(iconFile, iconPath)
+    }
+
     _onInitialize() {
       if (this.settings.get_boolean('initialized')) {
         return this._addAppsLauncher()
@@ -307,6 +318,7 @@ var PlankToDock = GObject.registerClass(
 
     activate() {
       this.dockTheme.activate()
+      this._copyAppsLauncherFiles()
 
       this._connectionHandlerID = Gio.bus_watch_name_on_connection(
         Gio.DBus.session,
@@ -341,9 +353,6 @@ var PlankToDock = GObject.registerClass(
 let plankToDock
 
 function enable() {
-  copyFile(`launchers/${APPS_ID}.desktop`, '.local/share/applications')
-  copyFile(`launchers/${APPS_ID}.svg`, '.icons/hicolor/scalable/apps')
-
   plankToDock = new PlankToDock()
   plankToDock.activate()
 }
