@@ -86,14 +86,14 @@ var PlankToDock = GObject.registerClass(
       return uri.split('/').pop()
     }
 
-    addToDash(uri) {
+    addToDash(uri, pos = -1) {
       const appId = this.getAppId(uri)
-      this.favorites._addFavorite(appId, -1)
+      this.favorites.addFavoriteAtPos(appId, pos)
     }
 
     removeFromDash(uri) {
       const appId = this.getAppId(uri)
-      this.favorites._removeFavorite(appId)
+      this.favorites.removeFavorite(appId)
     }
 
     addToDock(uri) {
