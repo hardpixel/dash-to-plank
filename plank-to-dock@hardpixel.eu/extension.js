@@ -93,6 +93,10 @@ class PlankTheme {
     copyFile(file, dest, false, this._parse.bind(this))
   }
 
+  enable() {
+    this.settings.set_string('theme', this.name)
+  }
+
   activate() {
     this._positionHandlerID = this.settings.connect(
       'changed::position',
@@ -223,7 +227,7 @@ var PlankToDock = GObject.registerClass(
       this.addToDock(this.appsLauncherUri)
       this.favoriteApps.forEach(uri => this.addToDock(uri))
 
-      this.itemsConf.set_string('theme', this.dockTheme.name)
+      this.dockTheme.enable()
       this.settings.set_boolean('initialized', true)
     }
 
