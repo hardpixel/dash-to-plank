@@ -40,21 +40,6 @@ var PlankToDock = GObject.registerClass(
       this.itemsConf = Gio.Settings.new_with_path(SCHEMA_NAME, SCHEMA_PATH)
       this.plankDbus = dbusProxy('plank', BUSNAME, BUSPATH)
       this.itemsDbus = dbusProxy('items', BUSNAME, `${BUSPATH}/${DOCK_ID}`)
-
-      this._dashHandlerID = this.favorites.connect(
-        'changed',
-        this._onFavoritesChanged.bind(this)
-      )
-
-      this._dockHandlerID = this.itemsDbus.connectSignal(
-        'Changed',
-        this._onPersistentChanged.bind(this)
-      )
-
-      this._sortHandlerID = this.itemsConf.connect(
-        'changed::dock-items',
-        this._onDockOrderChanged.bind(this)
-      )
     }
 
     get isConnected() {
@@ -138,6 +123,41 @@ var PlankToDock = GObject.registerClass(
       }
     }
 
+    _onConnectionAcquired() {
+      if (!this.persistentApps.includes(this.appsLauncherUri)) {
+        this.addToDock(this.appsLauncherUri)
+      }
+
+      this._dashHandlerID = this.favorites.connect(
+        'changed',
+        this._onFavoritesChanged.bind(this)
+      )
+
+      this._dockHandlerID = this.itemsDbus.connectSignal(
+        'Changed',
+        this._onPersistentChanged.bind(this)
+      )
+
+      this._sortHandlerID = this.itemsConf.connect(
+        'changed::dock-items',
+        this._onDockOrderChanged.bind(this)
+      )
+    }
+
+    _onConnectionLost() {
+      if (this._dashHandlerID) {
+        this.favorites.disconnect(this._dashHandlerID)
+      }
+
+      if (this._dockHandlerID) {
+        this.itemsDbus.disconnectSignal(this._dockHandlerID)
+      }
+
+      if (this._sortHandlerID) {
+        this.itemsConf.disconnect(this._sortHandlerID)
+      }
+    }
+
     _onFavoritesChanged() {
       this._withLock(() => {
         const dash = this.favoriteApps
@@ -168,35 +188,31 @@ var PlankToDock = GObject.registerClass(
     }
 
     activate() {
-      Main.panel._leftCorner.hide()
-      Main.panel._rightCorner.hide()
+      this._connectionHandlerID = Gio.bus_watch_name_on_connection(
+        Gio.DBus.session,
+        BUSNAME,
+        Gio.BusNameOwnerFlags.NONE,
+        this._onConnectionAcquired.bind(this),
+        this._onConnectionLost.bind(this)
+      )
 
       if (!this.isConnected) {
         this.appObject.activate()
       }
 
-      GLib.idle_add(GLib.PRIORITY_DEFAULT, () => {
-        if (!this.persistentApps.includes(this.appsLauncherUri)) {
-          this.addToDock(this.appsLauncherUri)
-        }
-      })
+      Main.panel._leftCorner.hide()
+      Main.panel._rightCorner.hide()
     }
 
     destroy() {
+      this._onConnectionLost()
+
+      if (this._connectionHandlerID) {
+        Gio.bus_unwatch_name(this._connectionHandlerID)
+      }
+
       Main.panel._leftCorner.show()
       Main.panel._rightCorner.show()
-
-      if (this._dashHandlerID) {
-        this.favorites.disconnect(this._dashHandlerID)
-      }
-
-      if (this._dockHandlerID) {
-        this.itemsDbus.disconnectSignal(this._dockHandlerID)
-      }
-
-      if (this._sortHandlerID) {
-        this.itemsConf.disconnect(this._sortHandlerID)
-      }
     }
   }
 )
