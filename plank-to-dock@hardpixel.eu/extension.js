@@ -94,6 +94,7 @@ class PlankTheme {
   }
 
   enable() {
+    this._update()
     this.settings.set_string('theme', this.name)
   }
 
