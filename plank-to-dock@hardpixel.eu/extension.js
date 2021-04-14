@@ -10,6 +10,9 @@ const Me           = imports.misc.extensionUtils.getCurrentExtension()
 const DOCK_ID = 'dock1'
 const APPS_ID = 'net.launchpad.plank.AppsLauncher'
 
+const SCHEMA_NAME = 'net.launchpad.plank.dock.settings'
+const SCHEMA_PATH = `/net/launchpad/plank/docks/${DOCK_ID}/`
+
 const BUSNAME = 'net.launchpad.plank'
 const BUSPATH = '/net/launchpad/plank'
 
@@ -34,6 +37,7 @@ var PlankToDock = GObject.registerClass(
       this.appSystem = Shell.AppSystem.get_default()
       this.appObject = this.lookupApp('plank.desktop')
 
+      this.itemsConf = Gio.Settings.new_with_path(SCHEMA_NAME, SCHEMA_PATH)
       this.plankDbus = dbusProxy('plank', BUSNAME, BUSPATH)
       this.itemsDbus = dbusProxy('items', BUSNAME, `${BUSPATH}/${DOCK_ID}`)
 
@@ -45,6 +49,11 @@ var PlankToDock = GObject.registerClass(
       this._dockHandlerID = this.itemsDbus.connectSignal(
         'Changed',
         this._onPersistentChanged.bind(this)
+      )
+
+      this._sortHandlerID = this.itemsConf.connect(
+        'changed::dock-items',
+        this._onDockOrderChanged.bind(this)
       )
     }
 
@@ -67,6 +76,13 @@ var PlankToDock = GObject.registerClass(
       return items.filter(uri => !uri.endsWith(`${APPS_ID}.desktop`))
     }
 
+    get dockItems() {
+      const value = this.itemsConf.get_strv('dock-items')
+      const items = value.filter(item => !item.endsWith(`${APPS_ID}.dockitem`))
+
+      return items.map(item => this.getUriFromItem(item))
+    }
+
     get appsLauncherUri() {
       const home = GLib.get_home_dir()
       const path = GLib.build_filenamev([home, '.local/share/applications', `${APPS_ID}.desktop`])
@@ -82,6 +98,11 @@ var PlankToDock = GObject.registerClass(
       return `file://${app.app_info.get_filename()}`
     }
 
+    getUriFromItem(item) {
+      const appId = item.replace(/dockitem$/, 'desktop')
+      return this.getAppUri(this.lookupApp(appId))
+    }
+
     getAppId(uri) {
       return uri.split('/').pop()
     }
@@ -94,6 +115,11 @@ var PlankToDock = GObject.registerClass(
     removeFromDash(uri) {
       const appId = this.getAppId(uri)
       this.favorites.removeFavorite(appId)
+    }
+
+    moveInDash(uri, pos) {
+      const appId = this.getAppId(uri)
+      this.favorites.moveFavoriteToPos(appId, pos)
     }
 
     addToDock(uri) {
@@ -132,6 +158,15 @@ var PlankToDock = GObject.registerClass(
       })
     }
 
+    _onDockOrderChanged() {
+      this._withLock(() => {
+        const dash = this.favoriteApps
+        const dock = this.dockItems
+
+        dock.forEach((uri, idx) => idx != dash.indexOf(uri) && this.moveInDash(uri, idx))
+      })
+    }
+
     activate() {
       Main.panel._leftCorner.hide()
       Main.panel._rightCorner.hide()
@@ -157,6 +192,10 @@ var PlankToDock = GObject.registerClass(
 
       if (this._dockHandlerID) {
         this.itemsDbus.disconnectSignal(this._dockHandlerID)
+      }
+
+      if (this._sortHandlerID) {
+        this.itemsConf.disconnect(this._sortHandlerID)
       }
     }
   }
