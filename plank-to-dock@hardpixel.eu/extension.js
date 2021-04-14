@@ -164,13 +164,6 @@ var PlankToDock = GObject.registerClass(
       return items.map(item => this.getUriFromItem(item))
     }
 
-    get appsLauncherUri() {
-      const home = GLib.get_home_dir()
-      const path = GLib.build_filenamev([home, '.local/share/applications', `${APPS_ID}.desktop`])
-
-      return `file://${path}`
-    }
-
     lookupApp(desktopId) {
       return this.appSystem.lookup_app(desktopId)
     }
@@ -219,12 +212,25 @@ var PlankToDock = GObject.registerClass(
       }
     }
 
+    _addAppsLauncher() {
+      const appId = `${APPS_ID}.dockitem`
+      const items = this.itemsConf.get_strv('dock-items')
+
+      if (!items.includes(appId)) {
+        const home = GLib.get_home_dir()
+        const apps = '.local/share/applications'
+        const path = GLib.build_filenamev([home, apps, `${APPS_ID}.desktop`])
+
+        this.addToDock(`file://${path}`)
+      }
+    }
+
     _onInitialize() {
       if (this.settings.get_boolean('initialized')) return
 
       this.persistentApps.forEach(uri => this.removeFromDock(uri))
 
-      this.addToDock(this.appsLauncherUri)
+      this._addAppsLauncher()
       this.favoriteApps.forEach(uri => this.addToDock(uri))
 
       this.dockTheme.enable()
@@ -233,6 +239,7 @@ var PlankToDock = GObject.registerClass(
 
     _onConnectionAcquired() {
       this._onInitialize()
+      this._addAppsLauncher()
 
       this._dashHandlerID = this.favorites.connect(
         'changed',
