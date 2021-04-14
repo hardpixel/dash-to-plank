@@ -226,12 +226,17 @@ var PlankToDock = GObject.registerClass(
     }
 
     _onInitialize() {
-      if (this.settings.get_boolean('initialized')) return
+      if (this.settings.get_boolean('initialized')) {
+        return this._addAppsLauncher()
+      }
 
-      this.persistentApps.forEach(uri => this.removeFromDock(uri))
+      const dash = this.favoriteApps
+      const dock = this.persistentApps
+
+      dock.forEach(uri => this.removeFromDock(uri))
 
       this._addAppsLauncher()
-      this.favoriteApps.forEach(uri => this.addToDock(uri))
+      dash.forEach(uri => this.addToDock(uri))
 
       this.dockTheme.enable()
       this.settings.set_boolean('initialized', true)
@@ -239,7 +244,6 @@ var PlankToDock = GObject.registerClass(
 
     _onConnectionAcquired() {
       this._onInitialize()
-      this._addAppsLauncher()
 
       this._dashHandlerID = this.favorites.connect(
         'changed',
