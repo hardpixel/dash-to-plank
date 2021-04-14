@@ -228,9 +228,7 @@ var PlankToDock = GObject.registerClass(
     }
 
     _onConnectionAcquired() {
-      if (!this.persistentApps.includes(this.appsLauncherUri)) {
-        this.addToDock(this.appsLauncherUri)
-      }
+      this._onInitialize()
 
       this._dashHandlerID = this.favorites.connect(
         'changed',
@@ -293,7 +291,6 @@ var PlankToDock = GObject.registerClass(
 
     activate() {
       this.dockTheme.activate()
-      this._onInitialize()
 
       this._connectionHandlerID = Gio.bus_watch_name_on_connection(
         Gio.DBus.session,
