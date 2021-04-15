@@ -144,6 +144,10 @@ var DashToPlank = GObject.registerClass(
       this.itemsDbus = dbusProxy('items', BUSNAME, `${BUSPATH}/${DOCK_ID}`)
     }
 
+    get isInitialized() {
+      return this.settings.get_boolean('initialized')
+    }
+
     get isConnected() {
       try {
         this.plankDbus.PingSync()
@@ -258,7 +262,7 @@ var DashToPlank = GObject.registerClass(
     }
 
     _onInitialize() {
-      if (this.settings.get_boolean('initialized')) {
+      if (this.isInitialized) {
         return this._addAppsLauncher()
       }
 
