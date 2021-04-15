@@ -135,9 +135,7 @@ var DashToPlank = GObject.registerClass(
     _init() {
       this.settings  = Convenience.getSettings()
       this.favorites = AppFavorites.getAppFavorites()
-
       this.appSystem = Shell.AppSystem.get_default()
-      this.appObject = this.lookupApp('plank.desktop')
 
       this.itemsConf = Gio.Settings.new_with_path(SCHEMA_NAME, SCHEMA_PATH)
       this.dockTheme = new PlankTheme(this.itemsConf)
@@ -340,6 +338,12 @@ var DashToPlank = GObject.registerClass(
     }
 
     activate() {
+      try {
+        GLib.spawn_command_line_async('plank')
+      } catch (e) {
+        return Main.notifyError(Me.metadata['name'], 'Plank is not available on your system.')
+      }
+
       this.dockTheme.activate()
       this._copyAppsLauncherFiles()
 
@@ -350,10 +354,6 @@ var DashToPlank = GObject.registerClass(
         this._onConnectionAcquired.bind(this),
         this._onConnectionLost.bind(this)
       )
-
-      if (!this.isConnected) {
-        this.appObject.activate()
-      }
 
       Main.panel._leftCorner.hide()
       Main.panel._rightCorner.hide()
