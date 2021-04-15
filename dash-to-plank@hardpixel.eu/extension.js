@@ -120,10 +120,12 @@ class PlankTheme {
   destroy() {
     if (this._positionHandlerID) {
       this.settings.disconnect(this._positionHandlerID)
+      this._positionHandlerID = null
     }
 
     if (this._alignmentHandlerID) {
       this.settings.disconnect(this._alignmentHandlerID)
+      this._alignmentHandlerID = null
     }
   }
 }
@@ -283,14 +285,17 @@ var DashToPlank = GObject.registerClass(
     _onConnectionLost() {
       if (this._dashHandlerID) {
         this.favorites.disconnect(this._dashHandlerID)
+        this._dashHandlerID = null
       }
 
       if (this._dockHandlerID) {
         this.itemsDbus.disconnectSignal(this._dockHandlerID)
+        this._dockHandlerID = null
       }
 
       if (this._sortHandlerID) {
         this.itemsConf.disconnect(this._sortHandlerID)
+        this._sortHandlerID = null
       }
     }
 
@@ -360,6 +365,7 @@ var DashToPlank = GObject.registerClass(
 
       if (this._connectionHandlerID) {
         Gio.bus_unwatch_name(this._connectionHandlerID)
+        this._connectionHandlerID = null
       }
 
       Main.panel._leftCorner.show()
