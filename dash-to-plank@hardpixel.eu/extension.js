@@ -368,6 +368,12 @@ var DashToPlank = GObject.registerClass(
         this._connectionHandlerID = null
       }
 
+      global.get_window_actors().forEach(({ meta_window }) => {
+        if (meta_window.wm_class == 'Plank') {
+          meta_window.kill()
+        }
+      })
+
       Main.panel._leftCorner.show()
       Main.panel._rightCorner.show()
     }
