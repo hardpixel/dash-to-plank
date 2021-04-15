@@ -47,6 +47,11 @@ function copyFile(file, dest, once = true, parse = val => val) {
   GLib.file_set_contents(destPath, data)
 }
 
+function arraysEqual(arr1, arr2) {
+  if (arr1.length !== arr2.length) return false
+  return !arr1.some((val, idx) => val !== arr2[idx])
+}
+
 class PlankTheme {
   constructor(settings) {
     this.name     = 'DashToPlank'
@@ -213,6 +218,14 @@ var DashToPlank = GObject.registerClass(
       }
     }
 
+    _withPinnedOnly(callback) {
+      const value = this.itemsConf.get_boolean('pinned-only')
+      this.itemsConf.set_boolean('pinned-only', true)
+
+      callback()
+      this.itemsConf.set_boolean('pinned-only', value)
+    }
+
     _addAppsLauncher() {
       const appId = `${APPS_ID}.dockitem`
       const items = this.itemsConf.get_strv('dock-items')
@@ -242,15 +255,9 @@ var DashToPlank = GObject.registerClass(
         return this._addAppsLauncher()
       }
 
-      const dash = this.favoriteApps
-      const dock = this.persistentApps
-
-      dock.forEach(uri => this.removeFromDock(uri))
-
       this._addAppsLauncher()
-      dash.forEach(uri => this.addToDock(uri))
-
       this.dockTheme.enable()
+
       this.settings.set_boolean('initialized', true)
     }
 
@@ -292,8 +299,19 @@ var DashToPlank = GObject.registerClass(
         const dash = this.favoriteApps
         const dock = this.persistentApps
 
-        dash.forEach(uri => !dock.includes(uri) && this.addToDock(uri))
-        dock.forEach(uri => !dash.includes(uri) && this.removeFromDock(uri))
+        if (arraysEqual(dash, dock)) return
+
+        const head = [...dash]
+        const last = head.pop()
+
+        if (arraysEqual(head, dock)) {
+          return this.addToDock(last)
+        }
+
+        this._withPinnedOnly(() => {
+          dock.forEach(uri => this.removeFromDock(uri))
+          dash.forEach(uri => this.addToDock(uri))
+        })
       })
     }
 
