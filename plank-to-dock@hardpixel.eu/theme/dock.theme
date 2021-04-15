@@ -9,13 +9,13 @@ BottomRoundness=0
 #The thickness (in pixels) of lines drawn.
 LineWidth=0
 #The color (RGBA) of the outer stroke.
-OuterStrokeColor=252;;223;;167;;0
+OuterStrokeColor=0;;0;;0;;0
 #The starting color (RGBA) of the fill gradient.
 FillStartColor=0;;0;;0;;190
 #The ending color (RGBA) of the fill gradient.
 FillEndColor=0;;0;;0;;190
 #The color (RGBA) of the inner stroke.
-InnerStrokeColor=120;;120;;120;;0
+InnerStrokeColor=0;;0;;0;;0
 
 [PlankDockTheme]
 #The padding on the left/right dock edges, in tenths of a percent of IconSize.
@@ -29,11 +29,11 @@ ItemPadding=12
 #The size of item indicators, in tenths of a percent of IconSize.
 IndicatorSize=10
 #The size of the icon-shadow behind every item, in tenths of a percent of IconSize.
-IconShadowSize=0
+IconShadowSize=1
 #The height (in percent of IconSize) to bounce an icon when the application sets urgent.
-UrgentBounceHeight=0
+UrgentBounceHeight=1
 #The height (in percent of IconSize) to bounce an icon when launching an application.
-LaunchBounceHeight=0
+LaunchBounceHeight=1
 #The opacity value (0 to 1) to fade the dock to when hiding it.
 FadeOpacity=1
 #The amount of time (in ms) for click animations.
