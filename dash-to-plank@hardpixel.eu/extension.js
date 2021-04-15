@@ -158,6 +158,13 @@ var DashToPlank = GObject.registerClass(
       return items.map(app => this.getAppUri(app))
     }
 
+    get dashItems() {
+      const value = global.settings.get_strv('favorite-apps')
+      const items = value.map(appId => this.getAppUri(this.lookupApp(appId)))
+
+      return items.filter(uri => !!uri)
+    }
+
     get persistentApps() {
       const items = this.itemsDbus.GetPersistentApplicationsSync()[0]
       return items.filter(uri => !uri.endsWith(`${APPS_ID}.desktop`))
