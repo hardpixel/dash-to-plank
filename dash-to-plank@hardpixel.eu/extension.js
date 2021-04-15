@@ -338,14 +338,14 @@ var DashToPlank = GObject.registerClass(
     }
 
     activate() {
+      this._copyAppsLauncherFiles()
+      this.dockTheme.activate()
+
       try {
         GLib.spawn_command_line_async('plank')
       } catch (e) {
         return Main.notifyError(Me.metadata['name'], 'Plank is not available on your system.')
       }
-
-      this.dockTheme.activate()
-      this._copyAppsLauncherFiles()
 
       this._connectionHandlerID = Gio.bus_watch_name_on_connection(
         Gio.DBus.session,
