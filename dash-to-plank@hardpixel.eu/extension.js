@@ -266,10 +266,27 @@ var DashToPlank = GObject.registerClass(
         return this._addAppsLauncher()
       }
 
-      this._addAppsLauncher()
       this.dockTheme.enable()
 
-      this.settings.set_boolean('initialized', true)
+      this._initHandlerID = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 200, () => {
+        try {
+          const dash = this.favoriteApps
+          const dock = this.persistentApps
+
+          this._addAppsLauncher()
+
+          this._withPinnedOnly(() => {
+            dock.forEach(uri => this.removeFromDock(uri))
+            dash.forEach(uri => this.addToDock(uri))
+          })
+
+          this.settings.set_boolean('initialized', true)
+
+          return GLib.SOURCE_REMOVE
+        } catch (e) {
+          return GLib.SOURCE_CONTINUE
+        }
+      })
     }
 
     _onConnectionAcquired() {
@@ -292,6 +309,11 @@ var DashToPlank = GObject.registerClass(
     }
 
     _onConnectionLost() {
+      if (this._initHandlerID) {
+        GLib.source_remove(this._initHandlerID)
+        this._initHandlerID = null
+      }
+
       if (this._dashHandlerID) {
         this.favorites.disconnect(this._dashHandlerID)
         this._dashHandlerID = null
@@ -309,6 +331,8 @@ var DashToPlank = GObject.registerClass(
     }
 
     _onFavoritesChanged() {
+      if (!this.isInitialized) return
+
       this._withLock(() => {
         const dash = this.favoriteApps
         const dock = this.persistentApps
@@ -330,6 +354,8 @@ var DashToPlank = GObject.registerClass(
     }
 
     _onPersistentChanged() {
+      if (!this.isInitialized) return
+
       this._withLock(() => {
         const dash = this.favoriteApps
         const dock = this.persistentApps
@@ -340,6 +366,8 @@ var DashToPlank = GObject.registerClass(
     }
 
     _onDockOrderChanged() {
+      if (!this.isInitialized) return
+
       this._withLock(() => {
         const dash = this.favoriteApps
         const dock = this.dockItems
