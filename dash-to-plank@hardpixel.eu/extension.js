@@ -49,7 +49,7 @@ function copyFile(file, dest, once = true, parse = val => val) {
 
 class PlankTheme {
   constructor(settings) {
-    this.name     = 'PlankToDock'
+    this.name     = 'DashToPlank'
     this.settings = settings
   }
 
@@ -123,8 +123,8 @@ class PlankTheme {
   }
 }
 
-var PlankToDock = GObject.registerClass(
-  class PlankToDock extends GObject.Object {
+var DashToPlank = GObject.registerClass(
+  class DashToPlank extends GObject.Object {
     _init() {
       this.settings  = Convenience.getSettings()
       this.favorites = AppFavorites.getAppFavorites()
@@ -350,14 +350,14 @@ var PlankToDock = GObject.registerClass(
   }
 )
 
-let plankToDock
+let dashToPlank
 
 function enable() {
-  plankToDock = new PlankToDock()
-  plankToDock.activate()
+  dashToPlank = new DashToPlank()
+  dashToPlank.activate()
 }
 
 function disable() {
-  plankToDock.destroy()
-  plankToDock = null
+  dashToPlank.destroy()
+  dashToPlank = null
 }

@@ -1,0 +1,10 @@
+{
+  "shell-version": ["3.32", "3.34", "3.36", "3.38", "40"],
+  "uuid": "dash-to-plank@hardpixel.eu",
+  "url": "https://github.com/hardpixel/dash-to-plank",
+  "settings-schema": "org.gnome.shell.extensions.dash-to-plank",
+  "gettext-domain": "dash-to-plank",
+  "version": 1,
+  "name": "Dash to Plank",
+  "description": "GNOME Shell integration for Plank, the simplest dock on the planet."
+}

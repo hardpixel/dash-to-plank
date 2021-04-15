@@ -1,5 +1,5 @@
 <schemalist gettext-domain="gnome-shell-extensions">
-  <schema id="org.gnome.shell.extensions.plank-to-dock" path="/org/gnome/shell/extensions/plank-to-dock/">
+  <schema id="org.gnome.shell.extensions.dash-to-plank" path="/org/gnome/shell/extensions/dash-to-plank/">
     <key name="initialized" type="b">
       <default>false</default>
       <summary>Skip initialize.</summary>
