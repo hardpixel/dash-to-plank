@@ -23,9 +23,9 @@ HorizPadding={{paddingX}}
 #The padding on the top dock edge, in tenths of a percent of IconSize.
 TopPadding={{paddingY}}
 #The padding on the bottom dock edge, in tenths of a percent of IconSize.
-BottomPadding={{paddingY}}
+BottomPadding={{paddingB}}
 #The padding between items on the dock, in tenths of a percent of IconSize.
-ItemPadding=12
+ItemPadding={{itemPadding}}
 #The size of item indicators, in tenths of a percent of IconSize.
 IndicatorSize=10
 #The size of the icon-shadow behind every item, in tenths of a percent of IconSize.

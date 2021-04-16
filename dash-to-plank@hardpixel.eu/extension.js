@@ -55,6 +55,10 @@ class PlankTheme {
     this.settings = settings
   }
 
+  get iconSize() {
+    return this.settings.get_int('icon-size')
+  }
+
   get position() {
     return this.settings.get_string('position')
   }
@@ -67,23 +71,41 @@ class PlankTheme {
     return ['left', 'right'].includes(this.position)
   }
 
-  get panelMode() {
-    return this.alignment == 'fill'
+  get offset() {
+    return this.toPercent(Main.panel.height)
   }
 
   get paddingX() {
-    return this.vertical ? (this.panelMode ? 13 : 4) : 1
+    if (this.vertical) {
+      return this.alignment == 'fill' ? this.offset : this.toPercent(10)
+    } else {
+      return this.toPercent(2)
+    }
   }
 
   get paddingY() {
-    return this.vertical ? 8 : 6
+    return this.toPercent(this.vertical ? 19 : 15)
+  }
+
+  get paddingB() {
+    return this.position == 'top' ? this.offset + this.paddingY : this.paddingY
+  }
+
+  get itemPadding() {
+    return this.toPercent(this.vertical ? 29 : 32)
+  }
+
+  toPercent(pixels) {
+    return pixels * 10 / this.iconSize
   }
 
   _parse(data) {
     let value = data
 
-    value = value.replace(/{{paddingX}}/g, this.paddingX)
-    value = value.replace(/{{paddingY}}/g, this.paddingY)
+    value = value.replace(/{{paddingX}}/g, this.paddingX.toFixed(2))
+    value = value.replace(/{{paddingY}}/g, this.paddingY.toFixed(2))
+    value = value.replace(/{{paddingB}}/g, this.paddingB.toFixed(2))
+    value = value.replace(/{{itemPadding}}/g, this.itemPadding.toFixed(2))
 
     return value
   }
@@ -100,6 +122,11 @@ class PlankTheme {
   }
 
   activate() {
+    this._iconHandlerID = this.settings.connect(
+      'changed::icon-size',
+      this._update.bind(this)
+    )
+
     this._positionHandlerID = this.settings.connect(
       'changed::position',
       this._update.bind(this)
@@ -114,6 +141,11 @@ class PlankTheme {
   }
 
   destroy() {
+    if (this._iconHandlerID) {
+      this.settings.disconnect(this._iconHandlerID)
+      this._iconHandlerID = null
+    }
+
     if (this._positionHandlerID) {
       this.settings.disconnect(this._positionHandlerID)
       this._positionHandlerID = null
