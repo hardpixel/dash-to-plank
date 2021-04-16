@@ -224,7 +224,7 @@ var DashToPlank = GObject.registerClass(
     _withLock(callback) {
       if (!this._updatesLocked) {
         this._updatesLocked = true
-        callback()
+        try { callback() } catch {}
         this._updatesLocked = false
       }
     }
@@ -233,7 +233,7 @@ var DashToPlank = GObject.registerClass(
       const value = this.itemsConf.get_boolean('pinned-only')
       this.itemsConf.set_boolean('pinned-only', true)
 
-      callback()
+      try { callback() } catch {}
       this.itemsConf.set_boolean('pinned-only', value)
     }
 
