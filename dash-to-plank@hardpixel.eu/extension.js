@@ -230,11 +230,9 @@ var DashToPlank = GObject.registerClass(
     }
 
     _withPinnedOnly(callback) {
-      const value = this.itemsConf.get_boolean('pinned-only')
       this.itemsConf.set_boolean('pinned-only', true)
-
       try { callback() } catch {}
-      this.itemsConf.set_boolean('pinned-only', value)
+      this.itemsConf.set_boolean('pinned-only', this.pinnedOnly)
     }
 
     _addAppsLauncher() {
@@ -377,6 +375,8 @@ var DashToPlank = GObject.registerClass(
     }
 
     activate() {
+      this.pinnedOnly = this.itemsConf.get_boolean('pinned-only')
+
       this._copyAppsLauncherFiles()
       this.dockTheme.activate()
 
