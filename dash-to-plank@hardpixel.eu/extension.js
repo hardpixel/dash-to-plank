@@ -393,6 +393,13 @@ var DashToPlank = GObject.registerClass(
 
       Main.panel._leftCorner.hide()
       Main.panel._rightCorner.hide()
+
+      if (!Main.overview.showApps) {
+        Main.overview.showApps = () => {
+          Main.overview.show()
+          Main.overview.viewSelector._showAppsButton.checked = true
+        }
+      }
     }
 
     destroy() {
