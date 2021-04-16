@@ -24,3 +24,15 @@ function getSettings(schema) {
 
   return new Gio.Settings({ settings_schema: schemaObj })
 }
+
+function getPlankSettings(dock_id) {
+  const schemaSource = Gio.SettingsSchemaSource.get_default()
+  const schemaObj    = schemaSource.lookup('net.launchpad.plank.dock.settings', true)
+  const schemaPath   = `/net/launchpad/plank/docks/${dock_id}/`
+
+  if (schemaObj) {
+    return new Gio.Settings({ settings_schema: schemaObj, path: schemaPath })
+  } else {
+    throw new Error('Plank schema not found. Please check your installation.')
+  }
+}

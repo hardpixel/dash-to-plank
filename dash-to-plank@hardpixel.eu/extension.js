@@ -11,9 +11,6 @@ const Convenience  = Me.imports.convenience
 const DOCK_ID = 'dock1'
 const APPS_ID = 'net.launchpad.plank.AppsLauncher'
 
-const SCHEMA_NAME = 'net.launchpad.plank.dock.settings'
-const SCHEMA_PATH = `/net/launchpad/plank/docks/${DOCK_ID}/`
-
 const BUSNAME = 'net.launchpad.plank'
 const BUSPATH = '/net/launchpad/plank'
 
@@ -137,7 +134,7 @@ var DashToPlank = GObject.registerClass(
       this.favorites = AppFavorites.getAppFavorites()
       this.appSystem = Shell.AppSystem.get_default()
 
-      this.itemsConf = Gio.Settings.new_with_path(SCHEMA_NAME, SCHEMA_PATH)
+      this.itemsConf = Convenience.getPlankSettings(DOCK_ID)
       this.dockTheme = new PlankTheme(this.itemsConf)
 
       this.plankDbus = dbusProxy('plank', BUSNAME, BUSPATH)
