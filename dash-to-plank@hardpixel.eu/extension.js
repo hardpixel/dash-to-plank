@@ -28,20 +28,22 @@ function dbusProxy(filename, ...args) {
   }
 }
 
-function copyFile(file, dest, once = true, parse = val => val) {
-  const filePath = GLib.build_filenamev([Me.path, file])
-  const fileName = GLib.path_get_basename(filePath)
+function copyTemplate(template, dest, context = {}) {
+  const filePath = GLib.build_filenamev([Me.path, 'templates', template])
+  const destPath = GLib.build_filenamev([GLib.get_home_dir(), dest])
 
-  const homePath = GLib.get_home_dir()
-  const destPath = GLib.build_filenamev([homePath, dest, fileName])
+  const data = GLib.file_get_contents(filePath)
+  let string = Bytes.toString(data[1])
 
-  if (once && GLib.file_test(destPath, GLib.FileTest.EXISTS)) return
+  Object.keys(context).forEach(key => {
+    let re = new RegExp(`{{${key}}}`, 'g')
+    string = string.replace(re, context[key])
+  })
 
-  const text = GLib.file_get_contents(filePath)
-  const data = parse(Bytes.toString(text[1]))
+  const destDir = GLib.path_get_dirname(destPath)
+  GLib.mkdir_with_parents(destDir, parseInt('0700', 8))
 
-  GLib.mkdir_with_parents(GLib.path_get_dirname(destPath), parseInt('0700', 8))
-  GLib.file_set_contents(destPath, data)
+  GLib.file_set_contents(destPath, string)
 }
 
 function arraysEqual(arr1, arr2) {
@@ -52,6 +54,7 @@ function arraysEqual(arr1, arr2) {
 class PlankTheme {
   constructor(settings) {
     this.name     = 'DashToPlank'
+    this.filePath = `.local/share/plank/themes/${this.name}/dock.theme`
     this.settings = settings
   }
 
@@ -99,22 +102,13 @@ class PlankTheme {
     return pixels * 10 / this.iconSize
   }
 
-  _parse(data) {
-    let value = data
-
-    value = value.replace(/{{paddingX}}/g, this.paddingX.toFixed(2))
-    value = value.replace(/{{paddingY}}/g, this.paddingY.toFixed(2))
-    value = value.replace(/{{paddingB}}/g, this.paddingB.toFixed(2))
-    value = value.replace(/{{itemPadding}}/g, this.itemPadding.toFixed(2))
-
-    return value
-  }
-
   _update() {
-    const file = 'theme/dock.theme'
-    const dest = `.local/share/plank/themes/${this.name}`
-
-    copyFile(file, dest, false, this._parse.bind(this))
+    copyTemplate('dock.theme', this.filePath, {
+      paddingX:    this.paddingX.toFixed(2),
+      paddingY:    this.paddingY.toFixed(2),
+      paddingB:    this.paddingB.toFixed(2),
+      itemPadding: this.itemPadding.toFixed(2)
+    })
   }
 
   enable() {
@@ -277,14 +271,11 @@ var DashToPlank = GObject.registerClass(
     }
 
     _copyAppsLauncherFiles() {
-      const deskFile = `launchers/${APPS_ID}.desktop`
-      const deskPath = '.local/share/applications'
+      const iconPath = `.icons/hicolor/scalable/apps/${APPS_ID}.svg`
+      copyTemplate('apps-icon.svg', iconPath)
 
-      const iconFile = `launchers/${APPS_ID}.svg`
-      const iconPath = '.icons/hicolor/scalable/apps'
-
-      copyFile(deskFile, deskPath)
-      copyFile(iconFile, iconPath)
+      const deskPath = `.local/share/applications/${APPS_ID}.desktop`
+      copyTemplate('apps-file.desktop', deskPath)
     }
 
     _onInitialize() {
