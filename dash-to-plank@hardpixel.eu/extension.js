@@ -159,9 +159,9 @@ var DashToPlank = GObject.registerClass(
       this.favorites = AppFavorites.getAppFavorites()
       this.appSystem = Shell.AppSystem.get_default()
 
-      this.itemsConf = Convenience.getPlankSettings(DOCK_ID)
-      this.dockTheme = new PlankTheme(this.itemsConf)
-      this.itemsDbus = dbusProxy('items', BUSNAME, BUSPATH)
+      this.plankConf = Convenience.getPlankSettings(DOCK_ID)
+      this.dockTheme = new PlankTheme(this.plankConf)
+      this.plankDbus = dbusProxy('items', BUSNAME, BUSPATH)
     }
 
     get isInitialized() {
@@ -181,12 +181,12 @@ var DashToPlank = GObject.registerClass(
     }
 
     get persistentApps() {
-      const items = this.itemsDbus.GetPersistentApplicationsSync()[0]
+      const items = this.plankDbus.GetPersistentApplicationsSync()[0]
       return items.filter(uri => !uri.endsWith(`${APPS_ID}.desktop`))
     }
 
     get dockItems() {
-      const value = this.itemsConf.get_strv('dock-items')
+      const value = this.plankConf.get_strv('dock-items')
       const items = value.map(item => this.getItemUri(item))
 
       return items.filter(uri => !!uri && !uri.endsWith(`${APPS_ID}.desktop`))
@@ -225,11 +225,11 @@ var DashToPlank = GObject.registerClass(
     }
 
     addToDock(uri) {
-      this.itemsDbus.AddSync(uri)
+      this.plankDbus.AddSync(uri)
     }
 
     removeFromDock(uri) {
-      this.itemsDbus.RemoveSync(uri)
+      this.plankDbus.RemoveSync(uri)
     }
 
     _withLock(callback) {
@@ -241,14 +241,14 @@ var DashToPlank = GObject.registerClass(
     }
 
     _withPinnedOnly(callback) {
-      this.itemsConf.set_boolean('pinned-only', true)
+      this.plankConf.set_boolean('pinned-only', true)
       try { callback() } catch {}
-      this.itemsConf.set_boolean('pinned-only', this.pinnedOnly)
+      this.plankConf.set_boolean('pinned-only', this.pinnedOnly)
     }
 
     _addAppsLauncher() {
       const appId = `${APPS_ID}.dockitem`
-      const items = this.itemsConf.get_strv('dock-items')
+      const items = this.plankConf.get_strv('dock-items')
 
       if (!items.includes(appId)) {
         const home = GLib.get_home_dir()
@@ -303,12 +303,12 @@ var DashToPlank = GObject.registerClass(
         this._onFavoritesChanged.bind(this)
       )
 
-      this._dockHandlerID = this.itemsDbus.connectSignal(
+      this._dockHandlerID = this.plankDbus.connectSignal(
         'Changed',
         this._onPersistentChanged.bind(this)
       )
 
-      this._sortHandlerID = this.itemsConf.connect(
+      this._sortHandlerID = this.plankConf.connect(
         'changed::dock-items',
         this._onDockOrderChanged.bind(this)
       )
@@ -326,12 +326,12 @@ var DashToPlank = GObject.registerClass(
       }
 
       if (this._dockHandlerID) {
-        this.itemsDbus.disconnectSignal(this._dockHandlerID)
+        this.plankDbus.disconnectSignal(this._dockHandlerID)
         this._dockHandlerID = null
       }
 
       if (this._sortHandlerID) {
-        this.itemsConf.disconnect(this._sortHandlerID)
+        this.plankConf.disconnect(this._sortHandlerID)
         this._sortHandlerID = null
       }
     }
@@ -383,7 +383,7 @@ var DashToPlank = GObject.registerClass(
     }
 
     activate() {
-      this.pinnedOnly = this.itemsConf.get_boolean('pinned-only')
+      this.pinnedOnly = this.plankConf.get_boolean('pinned-only')
 
       this._copyAppsLauncherFiles()
       this.dockTheme.activate()
