@@ -14,15 +14,15 @@ const APPS_ID = 'net.launchpad.plank.AppsLauncher'
 const BUSNAME = 'net.launchpad.plank'
 const BUSPATH = `/net/launchpad/plank/${DOCK_ID}`
 
-function dbusProxy(filename, ...args) {
-  const path = GLib.build_filenamev([Me.path, 'interfaces', `${filename}.xml`])
+function dbusProxy(busName, busPath) {
+  const path = GLib.build_filenamev([Me.path, 'interfaces', `${busName}.xml`])
   const data = GLib.file_get_contents(path)
 
   try {
     const DBusIFace = Bytes.toString(data[1])
     const DBusProxy = Gio.DBusProxy.makeProxyWrapper(DBusIFace)
 
-    return new DBusProxy(Gio.DBus.session, ...args)
+    return new DBusProxy(Gio.DBus.session, busName, busPath)
   } catch (e) {
     return null
   }
@@ -161,7 +161,7 @@ var DashToPlank = GObject.registerClass(
 
       this.plankConf = Convenience.getPlankSettings(DOCK_ID)
       this.dockTheme = new PlankTheme(this.plankConf)
-      this.plankDbus = dbusProxy('items', BUSNAME, BUSPATH)
+      this.plankDbus = dbusProxy(BUSNAME, BUSPATH)
     }
 
     get isInitialized() {
