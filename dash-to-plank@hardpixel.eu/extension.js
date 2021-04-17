@@ -12,7 +12,7 @@ const DOCK_ID = 'dock1'
 const APPS_ID = 'net.launchpad.plank.AppsLauncher'
 
 const BUSNAME = 'net.launchpad.plank'
-const BUSPATH = '/net/launchpad/plank'
+const BUSPATH = `/net/launchpad/plank/${DOCK_ID}`
 
 function dbusProxy(filename, ...args) {
   const path = GLib.build_filenamev([Me.path, 'interfaces', `${filename}.xml`])
@@ -161,22 +161,11 @@ var DashToPlank = GObject.registerClass(
 
       this.itemsConf = Convenience.getPlankSettings(DOCK_ID)
       this.dockTheme = new PlankTheme(this.itemsConf)
-
-      this.plankDbus = dbusProxy('plank', BUSNAME, BUSPATH)
-      this.itemsDbus = dbusProxy('items', BUSNAME, `${BUSPATH}/${DOCK_ID}`)
+      this.itemsDbus = dbusProxy('items', BUSNAME, BUSPATH)
     }
 
     get isInitialized() {
       return this.settings.get_boolean('initialized')
-    }
-
-    get isConnected() {
-      try {
-        this.plankDbus.PingSync()
-        return true
-      } catch (e) {
-        return false
-      }
     }
 
     get favoriteApps() {
