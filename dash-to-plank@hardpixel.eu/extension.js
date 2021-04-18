@@ -404,9 +404,6 @@ var DashToPlank = GObject.registerClass(
         this._onConnectionLost.bind(this)
       )
 
-      Main.panel._leftCorner.hide()
-      Main.panel._rightCorner.hide()
-
       if (!Main.overview.showApps) {
         Main.overview.showApps = () => {
           Main.overview.show()
@@ -429,9 +426,6 @@ var DashToPlank = GObject.registerClass(
           meta_window.kill()
         }
       })
-
-      Main.panel._leftCorner.show()
-      Main.panel._rightCorner.show()
     }
   }
 )
