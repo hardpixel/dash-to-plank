@@ -242,6 +242,8 @@ var DashToPlank = GObject.registerClass(
 
     _withPinnedOnly(callback) {
       this.plankConf.set_boolean('pinned-only', true)
+      Gio.Settings.sync()
+
       try { callback() } catch {}
       this.plankConf.set_boolean('pinned-only', this.pinnedOnly)
     }
