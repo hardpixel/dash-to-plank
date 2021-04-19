@@ -6,5 +6,5 @@
   "gettext-domain": "dash-to-plank",
   "version": 5,
   "name": "Dash to Plank",
-  "description": "GNOME Shell integration for Plank, the simplest dock on the planet."
+  "description": "GNOME Shell integration for Plank, the simplest dock on the planet. To use this extension, you must have Plank installed on your system."
 }
