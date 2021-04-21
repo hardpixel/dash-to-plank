@@ -7,6 +7,7 @@ const Main         = imports.ui.main
 const AppFavorites = imports.ui.appFavorites
 const Me           = imports.misc.extensionUtils.getCurrentExtension()
 const Convenience  = Me.imports.convenience
+const PlankTheme   = Me.imports.theme.PlankTheme
 
 const DOCK_ID = 'dock1'
 const APPS_ID = 'net.launchpad.plank.AppsLauncher'
@@ -49,107 +50,6 @@ function copyTemplate(template, dest, context = {}) {
 function arraysEqual(arr1, arr2) {
   if (arr1.length !== arr2.length) return false
   return !arr1.some((val, idx) => val !== arr2[idx])
-}
-
-class PlankTheme {
-  constructor(settings) {
-    this.name     = 'DashToPlank'
-    this.filePath = `.local/share/plank/themes/${this.name}/dock.theme`
-    this.settings = settings
-  }
-
-  get iconSize() {
-    return this.settings.get_int('icon-size')
-  }
-
-  get position() {
-    return this.settings.get_string('position')
-  }
-
-  get alignment() {
-    return this.settings.get_string('alignment')
-  }
-
-  get vertical() {
-    return ['left', 'right'].includes(this.position)
-  }
-
-  get offset() {
-    return this.toPercent(Main.panel.height)
-  }
-
-  get paddingX() {
-    if (this.vertical) {
-      return this.alignment == 'fill' ? this.offset : this.toPercent(10)
-    } else {
-      return this.toPercent(2)
-    }
-  }
-
-  get paddingY() {
-    return this.toPercent(this.vertical ? 19 : 15)
-  }
-
-  get paddingB() {
-    return this.position == 'top' ? this.offset + this.paddingY : this.paddingY
-  }
-
-  get itemPadding() {
-    return this.toPercent(this.vertical ? 29 : 32)
-  }
-
-  toPercent(pixels) {
-    return pixels * 10 / this.iconSize
-  }
-
-  _update() {
-    copyTemplate('dock.theme', this.filePath, {
-      paddingX:    this.paddingX.toFixed(2),
-      paddingY:    this.paddingY.toFixed(2),
-      paddingB:    this.paddingB.toFixed(2),
-      itemPadding: this.itemPadding.toFixed(2)
-    })
-  }
-
-  enable() {
-    this.settings.set_string('theme', this.name)
-  }
-
-  activate() {
-    this._iconHandlerID = this.settings.connect(
-      'changed::icon-size',
-      this._update.bind(this)
-    )
-
-    this._positionHandlerID = this.settings.connect(
-      'changed::position',
-      this._update.bind(this)
-    )
-
-    this._alignmentHandlerID = this.settings.connect(
-      'changed::alignment',
-      this._update.bind(this)
-    )
-
-    this._update()
-  }
-
-  destroy() {
-    if (this._iconHandlerID) {
-      this.settings.disconnect(this._iconHandlerID)
-      this._iconHandlerID = null
-    }
-
-    if (this._positionHandlerID) {
-      this.settings.disconnect(this._positionHandlerID)
-      this._positionHandlerID = null
-    }
-
-    if (this._alignmentHandlerID) {
-      this.settings.disconnect(this._alignmentHandlerID)
-      this._alignmentHandlerID = null
-    }
-  }
 }
 
 var DashToPlank = GObject.registerClass(

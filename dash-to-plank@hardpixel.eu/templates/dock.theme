@@ -19,13 +19,13 @@ InnerStrokeColor=0;;0;;0;;0
 
 [PlankDockTheme]
 #The padding on the left/right dock edges, in tenths of a percent of IconSize.
-HorizPadding={{paddingX}}
+HorizPadding=6.67
 #The padding on the top dock edge, in tenths of a percent of IconSize.
-TopPadding={{paddingY}}
+TopPadding=3.96
 #The padding on the bottom dock edge, in tenths of a percent of IconSize.
-BottomPadding={{paddingB}}
+BottomPadding=3.96
 #The padding between items on the dock, in tenths of a percent of IconSize.
-ItemPadding={{itemPadding}}
+ItemPadding=6.04
 #The size of item indicators, in tenths of a percent of IconSize.
 IndicatorSize=10
 #The size of the icon-shadow behind every item, in tenths of a percent of IconSize.
