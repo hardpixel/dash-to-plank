@@ -28,11 +28,6 @@ function dbusProxy(busName, busPath) {
   }
 }
 
-function arraysEqual(arr1, arr2) {
-  if (arr1.length !== arr2.length) return false
-  return !arr1.some((val, idx) => val !== arr2[idx])
-}
-
 var DashToPlank = GObject.registerClass(
   class DashToPlank extends GObject.Object {
     _init() {
@@ -221,16 +216,19 @@ var DashToPlank = GObject.registerClass(
     _onFavoritesChanged() {
       if (!this.isInitialized) return
 
+      const equal = (a, b) =>
+        a.length == b.length && !a.some((val, i) => val != b[i])
+
       this._withLock(() => {
         const dash = this.favoriteApps
         const dock = this.persistentApps
 
-        if (arraysEqual(dash, dock)) return
+        if (equal(dash, dock)) return
 
         const head = [...dash]
         const last = head.pop()
 
-        if (arraysEqual(head, dock)) {
+        if (equal(head, dock)) {
           return this.addToDock(last)
         }
 
