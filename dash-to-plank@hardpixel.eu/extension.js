@@ -8,10 +8,9 @@ const AppFavorites = imports.ui.appFavorites
 const Me           = imports.misc.extensionUtils.getCurrentExtension()
 const Convenience  = Me.imports.convenience
 const PlankTheme   = Me.imports.theme.PlankTheme
+const AppsLauncher = Me.imports.launcher.AppsLauncher
 
 const DOCK_ID = 'dock1'
-const APPS_ID = 'net.launchpad.plank.AppsLauncher'
-
 const BUSNAME = 'net.launchpad.plank'
 const BUSPATH = `/net/launchpad/plank/${DOCK_ID}`
 
@@ -29,24 +28,6 @@ function dbusProxy(busName, busPath) {
   }
 }
 
-function copyTemplate(template, dest, context = {}) {
-  const filePath = GLib.build_filenamev([Me.path, 'templates', template])
-  const destPath = GLib.build_filenamev([GLib.get_home_dir(), dest])
-
-  const data = GLib.file_get_contents(filePath)
-  let string = Bytes.toString(data[1])
-
-  Object.keys(context).forEach(key => {
-    let re = new RegExp(`{{${key}}}`, 'g')
-    string = string.replace(re, context[key])
-  })
-
-  const destDir = GLib.path_get_dirname(destPath)
-  GLib.mkdir_with_parents(destDir, parseInt('0700', 8))
-
-  GLib.file_set_contents(destPath, string)
-}
-
 function arraysEqual(arr1, arr2) {
   if (arr1.length !== arr2.length) return false
   return !arr1.some((val, idx) => val !== arr2[idx])
@@ -56,6 +37,7 @@ var DashToPlank = GObject.registerClass(
   class DashToPlank extends GObject.Object {
     _init() {
       this.settings  = Convenience.getSettings()
+      this.launcher  = new AppsLauncher()
       this.favorites = AppFavorites.getAppFavorites()
       this.appSystem = Shell.AppSystem.get_default()
 
@@ -82,14 +64,14 @@ var DashToPlank = GObject.registerClass(
 
     get persistentApps() {
       const items = this.plankDbus.GetPersistentApplicationsSync()[0]
-      return items.filter(uri => !uri.endsWith(`${APPS_ID}.desktop`))
+      return items.filter(uri => uri != this.launcher.uri)
     }
 
     get dockItems() {
       const value = this.plankConf.get_strv('dock-items')
       const items = value.map(item => this.getItemUri(item))
 
-      return items.filter(uri => !!uri && !uri.endsWith(`${APPS_ID}.desktop`))
+      return items.filter(uri => !!uri && uri != this.launcher.uri)
     }
 
     lookupApp(desktopId) {
@@ -149,31 +131,25 @@ var DashToPlank = GObject.registerClass(
     }
 
     _addAppsLauncher() {
-      const appId = `${APPS_ID}.dockitem`
       const items = this.plankConf.get_strv('dock-items')
 
-      if (!items.includes(appId)) {
-        const home = GLib.get_home_dir()
-        const apps = '.local/share/applications'
-        const path = GLib.build_filenamev([home, apps, `${APPS_ID}.desktop`])
-
-        this.addToDock(`file://${path}`)
+      if (!items.includes(this.launcher.dockitem)) {
+        this.addToDock(this.launcher.uri)
       }
     }
 
-    _copyAppsLauncherFiles() {
-      const iconPath = `.icons/hicolor/scalable/apps/${APPS_ID}.svg`
-      copyTemplate('apps-icon.svg', iconPath)
-
-      const deskPath = `.local/share/applications/${APPS_ID}.desktop`
-      copyTemplate('apps-file.desktop', deskPath)
+    _onInitialized() {
+      this._initHandlerID = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 200, () => {
+        try {
+          this._addAppsLauncher()
+          return GLib.SOURCE_REMOVE
+        } catch (e) {
+          return GLib.SOURCE_CONTINUE
+        }
+      })
     }
 
     _onInitialize() {
-      if (this.isInitialized) {
-        return this._addAppsLauncher()
-      }
-
       this.dockTheme.enable()
 
       this._initHandlerID = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 200, () => {
@@ -198,7 +174,11 @@ var DashToPlank = GObject.registerClass(
     }
 
     _onConnectionAcquired() {
-      this._onInitialize()
+      if (this.isInitialized) {
+        this._onInitialized()
+      } else {
+        this._onInitialize()
+      }
 
       this._dashHandlerID = this.favorites.connect(
         'changed',
@@ -287,7 +267,7 @@ var DashToPlank = GObject.registerClass(
     activate() {
       this.pinnedOnly = this.plankConf.get_boolean('pinned-only')
 
-      this._copyAppsLauncherFiles()
+      this.launcher.install()
       this.dockTheme.activate()
 
       try {
