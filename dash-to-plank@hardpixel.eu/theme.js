@@ -34,6 +34,7 @@ var PlankTheme = class PlankTheme {
     const paddingT  = vertical ? 19 : 15
     const paddingB  = isOnTop ? Main.panel.height + paddingT : paddingT
     const paddingI  = vertical ? 29 : 32
+    const indicator = iconSize > 92 ? 34 : 24
 
     const setString = (key, value) => {
       const percent = value * 10 / iconSize
@@ -44,6 +45,7 @@ var PlankTheme = class PlankTheme {
     setString('TopPadding', paddingT)
     setString('BottomPadding', paddingB)
     setString('ItemPadding', paddingI)
+    setString('IndicatorSize', indicator)
 
     this.keys.save_to_file(this.dest)
   }
