@@ -35,13 +35,15 @@ var PlankTheme = class PlankTheme {
     const paddingB  = isOnTop ? Main.panel.height + paddingT : paddingT
     const paddingI  = vertical ? 29 : 32
 
-    const setDouble = (key, value) =>
-      this.keys.set_double('PlankDockTheme', key, value * 10 / iconSize)
+    const setString = (key, value) => {
+      const percent = value * 10 / iconSize
+      this.keys.set_string('PlankDockTheme', key, percent.toFixed(2))
+    }
 
-    setDouble('HorizPadding', paddingX)
-    setDouble('TopPadding', paddingT)
-    setDouble('BottomPadding', paddingB)
-    setDouble('ItemPadding', paddingI)
+    setString('HorizPadding', paddingX)
+    setString('TopPadding', paddingT)
+    setString('BottomPadding', paddingB)
+    setString('ItemPadding', paddingI)
 
     this.keys.save_to_file(this.dest)
   }
