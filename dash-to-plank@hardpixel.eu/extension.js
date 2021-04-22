@@ -128,8 +128,8 @@ var DashToPlank = GObject.registerClass(
     _addAppsLauncher() {
       const items = this.plankConf.get_strv('dock-items')
 
-      if (!items.includes(this.launcher.dockitem)) {
-        this.addToDock(this.launcher.uri)
+      if (!items.includes('launcher.dockitem')) {
+        this.addToDock('docklet://launcher')
       }
     }
 
@@ -269,7 +269,10 @@ var DashToPlank = GObject.registerClass(
       this.dockTheme.activate()
 
       try {
-        GLib.spawn_command_line_async('plank')
+        const dir = GLib.build_filenamev([Me.path, 'docklets'])
+        const cmd = `env PLANK_DOCKLET_DIRS="$PLANK_DOCKLET_DIRS:${dir}" plank`
+
+        GLib.spawn_command_line_async(`sh -c '${cmd}'`)
       } catch (e) {
         return Main.notifyError(Me.metadata['name'], 'Plank is not available on your system.')
       }

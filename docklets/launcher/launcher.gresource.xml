@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<gresources>
+  <gresource prefix="/eu/hardpixel/dash-to-plank/launcher">
+    <file>icons/launcher.svg</file>
+    <file>icons/icon.svg</file>
+  </gresource>
+</gresources>

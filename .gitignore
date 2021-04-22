@@ -1,2 +1,7 @@
 *.ui~
 *.ui#
+
+docklets/**/*.so
+*.so.vapi
+*.swp
+*.c
