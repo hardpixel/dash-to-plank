@@ -281,13 +281,6 @@ var DashToPlank = GObject.registerClass(
         this._onConnectionAcquired.bind(this),
         this._onConnectionLost.bind(this)
       )
-
-      if (!Main.overview.showApps) {
-        Main.overview.showApps = () => {
-          Main.overview.show()
-          Main.overview.viewSelector._showAppsButton.checked = true
-        }
-      }
     }
 
     destroy() {
