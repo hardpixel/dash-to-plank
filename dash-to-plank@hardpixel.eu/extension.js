@@ -35,10 +35,6 @@ var DashToPlank = GObject.registerClass(
       this.launcher  = new AppsLauncher()
       this.favorites = AppFavorites.getAppFavorites()
       this.appSystem = Shell.AppSystem.get_default()
-
-      this.plankConf = Convenience.getPlankSettings(DOCK_ID)
-      this.dockTheme = new PlankTheme(this.plankConf)
-      this.plankDbus = dbusProxy(BUSNAME, BUSPATH)
     }
 
     get isInitialized() {
@@ -263,16 +259,19 @@ var DashToPlank = GObject.registerClass(
     }
 
     activate() {
-      this.pinnedOnly = this.plankConf.get_boolean('pinned-only')
-
-      this.launcher.install()
-      this.dockTheme.activate()
-
       try {
         GLib.spawn_command_line_async('plank')
       } catch (e) {
         return Main.notifyError(Me.metadata['name'], 'Plank is not available on your system.')
       }
+
+      this.plankConf  = Convenience.getPlankSettings(DOCK_ID)
+      this.dockTheme  = new PlankTheme(this.plankConf)
+      this.plankDbus  = dbusProxy(BUSNAME, BUSPATH)
+      this.pinnedOnly = this.plankConf.get_boolean('pinned-only')
+
+      this.launcher.install()
+      this.dockTheme.activate()
 
       this._connectionHandlerID = Gio.bus_watch_name_on_connection(
         Gio.DBus.session,
@@ -284,8 +283,11 @@ var DashToPlank = GObject.registerClass(
     }
 
     destroy() {
-      this.dockTheme.destroy()
       this._onConnectionLost()
+
+      if (this.dockTheme) {
+        this.dockTheme.destroy()
+      }
 
       if (this._connectionHandlerID) {
         Gio.bus_unwatch_name(this._connectionHandlerID)
