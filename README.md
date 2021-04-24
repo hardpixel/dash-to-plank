@@ -4,7 +4,13 @@ Gnome Shell extension to integrate [Plank](https://launchpad.net/plank), the sim
 ![Screenshot](https://raw.githubusercontent.com/hardpixel/dash-to-plank/master/screenshot.png)
 
 ## Install
-Make sure you have installed [Plank](https://launchpad.net/plank) and then copy folder `dash-to-plank@hardpixel.eu` into `~/.local/share/gnome-shell/extensions`.
+Make sure you have installed `plank`:
+
+* Debian/Ubuntu: apt install plank
+* Fedora/RHEL: dnf install plank
+* Arch: pacman -S plank
+
+Then, download the latest [release](https://github.com/hardpixel/dash-to-plank/releases) and extract `dash-to-plank@hardpixel.eu` into `~/.local/share/gnome-shell/extensions`.
 
 ### Gnome Shell Extensions
 The easiest way to install this extension is via the official [Gnome Shell Extensions](https://extensions.gnome.org) resource page [here](https://extensions.gnome.org/extension/4198/dash-to-plank).
