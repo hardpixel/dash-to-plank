@@ -1,15 +1,15 @@
 [Desktop Entry]
 Version=1.1
 Type=Application
-Name=Applications
+Name=Show Applications
 Comment=Open GNOME Shell applications list.
 NoDisplay=true
 Icon=net.launchpad.plank.AppsLauncher
 Exec=dbus-send --session --type=method_call --dest=org.gnome.Shell /org/gnome/Shell org.gnome.Shell.ShowApplications
-Actions=Overview;Preferences;
+Actions=Activities;Preferences;
 
-[Desktop Action Overview]
-Name=Overview
+[Desktop Action Activities]
+Name=Activities
 Exec=dbus-send --session --dest=org.gnome.Shell --type=method_call /org/gnome/Shell org.freedesktop.DBus.Properties.Set string:org.gnome.Shell string:OverviewActive variant:boolean:true
 
 [Desktop Action Preferences]
