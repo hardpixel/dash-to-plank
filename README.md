@@ -1,5 +1,5 @@
 # Dash to Plank
-Gnome Shell extension to integrate [Plank](https://launchpad.net/plank), the simplest dock on the planet. To use this extension, you should **install Plank** on your system. Also the extension works only on X11, **Wayland** is not **supported**.
+Gnome Shell extension to integrate [Plank](https://launchpad.net/plank), the simplest dock on the planet. To use this extension, you should **install Plank** on your system. Also the extension works only on X11, **Wayland is not supported**.
 
 ![Screenshot](https://raw.githubusercontent.com/hardpixel/dash-to-plank/master/screenshot.png)
 
