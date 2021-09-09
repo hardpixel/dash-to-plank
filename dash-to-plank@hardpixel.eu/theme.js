@@ -2,7 +2,7 @@ const GLib = imports.gi.GLib
 const Main = imports.ui.main
 const Me   = imports.misc.extensionUtils.getCurrentExtension()
 
-const THEMES_DIR = GLib.build_filenamev([GLib.get_home_dir(), '.local/share/plank/themes'])
+const THEMES_DIR = GLib.build_filenamev([GLib.get_user_data_dir(), 'plank/themes'])
 
 var PlankTheme = class PlankTheme {
   constructor(settings) {
