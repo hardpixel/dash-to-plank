@@ -4,5 +4,10 @@
       <default>false</default>
       <summary>Skip initialize.</summary>
     </key>
+
+    <key name="show-apps-icon" type="b">
+      <default>true</default>
+      <summary>Show applications icon.</summary>
+    </key>
   </schema>
 </schemalist>

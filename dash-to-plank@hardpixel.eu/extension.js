@@ -41,6 +41,10 @@ var DashToPlank = GObject.registerClass(
       return this.settings.get_boolean('initialized')
     }
 
+    get showAppsIcon() {
+      return this.settings.get_boolean('show-apps-icon')
+    }
+
     get favoriteApps() {
       const items = this.favorites.getFavorites()
       return items.map(app => this.getAppUri(app))
@@ -121,18 +125,23 @@ var DashToPlank = GObject.registerClass(
       this.plankConf.set_boolean('pinned-only', this.pinnedOnly)
     }
 
-    _addAppsLauncher() {
+    _toggleAppsLauncher() {
       const items = this.plankConf.get_strv('dock-items')
+      const exist = items.includes(this.launcher.dockitem)
 
-      if (!items.includes(this.launcher.dockitem)) {
+      if (this.showAppsIcon && !exist) {
         this.addToDock(this.launcher.uri)
+      }
+
+      if (!this.showAppsIcon && exist) {
+        this.removeFromDock(this.launcher.uri)
       }
     }
 
     _onInitialized() {
       this._initHandlerID = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 200, () => {
         try {
-          this._addAppsLauncher()
+          this._toggleAppsLauncher()
           return GLib.SOURCE_REMOVE
         } catch (e) {
           return GLib.SOURCE_CONTINUE
@@ -148,7 +157,7 @@ var DashToPlank = GObject.registerClass(
           const dash = this.favoriteApps
           const dock = this.persistentApps
 
-          this._addAppsLauncher()
+          this._toggleAppsLauncher()
 
           this._withPinnedOnly(() => {
             dock.forEach(uri => this.removeFromDock(uri))
@@ -280,6 +289,11 @@ var DashToPlank = GObject.registerClass(
         this._onConnectionAcquired.bind(this),
         this._onConnectionLost.bind(this)
       )
+
+      this._showAppsHandlerID = this.settings.connect(
+        'changed::show-apps-icon',
+        this._toggleAppsLauncher.bind(this)
+      )
     }
 
     destroy() {
@@ -292,6 +306,11 @@ var DashToPlank = GObject.registerClass(
       if (this._connectionHandlerID) {
         Gio.bus_unwatch_name(this._connectionHandlerID)
         this._connectionHandlerID = null
+      }
+
+      if (this._showAppsHandlerID) {
+        this.settings.disconnect(this._showAppsHandlerID)
+        this._showAppsHandlerID = null
       }
 
       global.get_window_actors().forEach(({ meta_window }) => {
