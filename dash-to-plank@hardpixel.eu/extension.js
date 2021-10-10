@@ -304,6 +304,8 @@ var DashToPlank = GObject.registerClass(
           meta_window.kill()
         }
       })
+
+      this.launcher.destroy()
     }
   }
 )

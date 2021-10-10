@@ -5,13 +5,13 @@ Name=Show Applications
 Comment=Open GNOME Shell applications list.
 NoDisplay=true
 Icon=net.launchpad.plank.AppsLauncher
-Exec=dbus-send --session --type=method_call --dest=org.gnome.Shell /org/gnome/Shell org.gnome.Shell.ShowApplications
+Exec=gdbus call --session --dest org.gnome.Shell --object-path /org/gnome/Shell/Extensions/DashToPlank --method org.gnome.Shell.Extensions.DashToPlank.ShowApplications
 Actions=Activities;Preferences;
 
 [Desktop Action Activities]
 Name=Activities
-Exec=dbus-send --session --dest=org.gnome.Shell --type=method_call /org/gnome/Shell org.freedesktop.DBus.Properties.Set string:org.gnome.Shell string:OverviewActive variant:boolean:true
+Exec=gdbus call --session --dest org.gnome.Shell --object-path /org/gnome/Shell/Extensions/DashToPlank --method org.gnome.Shell.Extensions.DashToPlank.ShowActivities
 
 [Desktop Action Preferences]
 Name=Preferences
-Exec=plank --preferences
+Exec=gdbus call --session --dest org.gnome.Shell --object-path /org/gnome/Shell/Extensions/DashToPlank --method org.gnome.Shell.Extensions.DashToPlank.ShowPreferences

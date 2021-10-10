@@ -58,3 +58,12 @@ function dbusProxy(busName, busPath) {
     return null
   }
 }
+
+function dbusObject(busName, busPath, context) {
+  const iface  = interfaceXML(busName)
+  const object = Gio.DBusExportedObject.wrapJSObject(iface, context)
+
+  object.export(Gio.DBus.session, busPath)
+
+  return object
+}

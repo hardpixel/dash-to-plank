@@ -1,0 +1,7 @@
+<node>
+  <interface name="org.gnome.Shell.Extensions.DashToPlank">
+    <method name="ShowApplications"></method>
+    <method name="ShowActivities"></method>
+    <method name="ShowPreferences"></method>
+  </interface>
+</node>
