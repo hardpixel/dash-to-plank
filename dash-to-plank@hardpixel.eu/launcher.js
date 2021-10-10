@@ -12,6 +12,7 @@ var AppsLauncher = class AppsLauncher {
     this.name = 'net.launchpad.plank.AppsLauncher'
     this.file = Utils.templatePath('apps-file.desktop')
     this.dest = GLib.build_filenamev([APPS_DIR, this.appId])
+    this.icon = GLib.build_filenamev([ICON_DIR, this.iconName])
     this.keys = new GLib.KeyFile()
 
     this.keys.load_from_file(this.file, GLib.KeyFileFlags.KEEP_COMMENTS)
@@ -29,25 +30,15 @@ var AppsLauncher = class AppsLauncher {
     return `${this.name}.dockitem`
   }
 
-  _copyIcon() {
-    const tmplPath = Utils.templatePath('apps-icon.svg')
-    const tmplFile = Gio.file_new_for_path(tmplPath)
-
-    const destPath = GLib.build_filenamev([ICON_DIR, `${this.name}.svg`])
-    const destFile = Gio.file_new_for_path(destPath)
-
-    tmplFile.copy(destFile, Gio.FileCopyFlags.OVERWRITE, null, null)
-  }
-
-  _copyLauncher() {
-    this.keys.save_to_file(this.dest)
+  get iconName() {
+    return `${this.name}.svg`
   }
 
   install() {
     Utils.mkdir(APPS_DIR)
     Utils.mkdir(ICON_DIR)
 
-    this._copyIcon()
-    this._copyLauncher()
+    Utils.copyTemplate('apps-icon.svg', this.icon)
+    this.keys.save_to_file(this.dest)
   }
 }

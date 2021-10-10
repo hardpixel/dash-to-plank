@@ -3,12 +3,30 @@ const Gio   = imports.gi.Gio
 const GLib  = imports.gi.GLib
 const Me    = imports.misc.extensionUtils.getCurrentExtension()
 
+function fileExists(path) {
+  return GLib.file_test(path, GLib.FileTest.EXISTS)
+}
+
 function userPath(path) {
   return GLib.build_filenamev([GLib.get_home_dir(), path])
 }
 
 function mkdir(path) {
-  GLib.mkdir_with_parents(path, parseInt('0700', 8))
+  if (!fileExists(path)) {
+    GLib.mkdir_with_parents(path, parseInt('0700', 8))
+  }
+}
+
+function copyFile(source, destination) {
+  const src  = Gio.file_new_for_path(source)
+  const dest = Gio.file_new_for_path(destination)
+
+  src.copy(dest, Gio.FileCopyFlags.OVERWRITE, null, null)
+}
+
+function copyTemplate(filename, dest) {
+  const src = templatePath(filename)
+  copyFile(src, dest)
 }
 
 function templatePath(filename) {
