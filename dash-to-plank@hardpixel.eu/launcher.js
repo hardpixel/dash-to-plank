@@ -1,15 +1,16 @@
-const GLib = imports.gi.GLib
-const Gio  = imports.gi.Gio
-const Main = imports.ui.main
-const Me   = imports.misc.extensionUtils.getCurrentExtension()
+const GLib  = imports.gi.GLib
+const Gio   = imports.gi.Gio
+const Main  = imports.ui.main
+const Me    = imports.misc.extensionUtils.getCurrentExtension()
+const Utils = Me.imports.utils
 
-const APPS_DIR  = GLib.build_filenamev([GLib.get_home_dir(), '.local/share/applications'])
-const ICONS_DIR = GLib.build_filenamev([GLib.get_home_dir(), '.icons/hicolor/scalable/apps'])
+const APPS_DIR = Utils.userPath('.local/share/applications')
+const ICON_DIR = Utils.userPath('.icons/hicolor/scalable/apps')
 
 var AppsLauncher = class AppsLauncher {
   constructor() {
     this.name = 'net.launchpad.plank.AppsLauncher'
-    this.file = GLib.build_filenamev([Me.path, 'templates', 'apps-file.desktop'])
+    this.file = Utils.templatePath('apps-file.desktop')
     this.dest = GLib.build_filenamev([APPS_DIR, this.appId])
     this.keys = new GLib.KeyFile()
 
@@ -29,10 +30,10 @@ var AppsLauncher = class AppsLauncher {
   }
 
   _copyIcon() {
-    const tmplPath = GLib.build_filenamev([Me.path, 'templates', 'apps-icon.svg'])
+    const tmplPath = Utils.templatePath('apps-icon.svg')
     const tmplFile = Gio.file_new_for_path(tmplPath)
 
-    const destPath = GLib.build_filenamev([ICONS_DIR, `${this.name}.svg`])
+    const destPath = GLib.build_filenamev([ICON_DIR, `${this.name}.svg`])
     const destFile = Gio.file_new_for_path(destPath)
 
     tmplFile.copy(destFile, Gio.FileCopyFlags.OVERWRITE, null, null)
@@ -43,8 +44,8 @@ var AppsLauncher = class AppsLauncher {
   }
 
   install() {
-    GLib.mkdir_with_parents(APPS_DIR, parseInt('0700', 8))
-    GLib.mkdir_with_parents(ICONS_DIR, parseInt('0700', 8))
+    Utils.mkdir(APPS_DIR)
+    Utils.mkdir(ICON_DIR)
 
     this._copyIcon()
     this._copyLauncher()

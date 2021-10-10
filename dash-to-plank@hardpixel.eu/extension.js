@@ -1,4 +1,3 @@
-const Bytes        = imports.byteArray
 const GObject      = imports.gi.GObject
 const Gio          = imports.gi.Gio
 const GLib         = imports.gi.GLib
@@ -6,6 +5,7 @@ const Shell        = imports.gi.Shell
 const Main         = imports.ui.main
 const AppFavorites = imports.ui.appFavorites
 const Me           = imports.misc.extensionUtils.getCurrentExtension()
+const Utils        = Me.imports.utils
 const Convenience  = Me.imports.convenience
 const PlankTheme   = Me.imports.theme.PlankTheme
 const AppsLauncher = Me.imports.launcher.AppsLauncher
@@ -13,20 +13,6 @@ const AppsLauncher = Me.imports.launcher.AppsLauncher
 const DOCK_ID = 'dock1'
 const BUSNAME = 'net.launchpad.plank'
 const BUSPATH = `/net/launchpad/plank/${DOCK_ID}`
-
-function dbusProxy(busName, busPath) {
-  const path = GLib.build_filenamev([Me.path, 'interfaces', `${busName}.xml`])
-  const data = GLib.file_get_contents(path)
-
-  try {
-    const DBusIFace = Bytes.toString(data[1])
-    const DBusProxy = Gio.DBusProxy.makeProxyWrapper(DBusIFace)
-
-    return new DBusProxy(Gio.DBus.session, busName, busPath)
-  } catch (e) {
-    return null
-  }
-}
 
 var DashToPlank = GObject.registerClass(
   class DashToPlank extends GObject.Object {
@@ -276,7 +262,7 @@ var DashToPlank = GObject.registerClass(
 
       this.plankConf  = Convenience.getPlankSettings(DOCK_ID)
       this.dockTheme  = new PlankTheme(this.plankConf)
-      this.plankDbus  = dbusProxy(BUSNAME, BUSPATH)
+      this.plankDbus  = Utils.dbusProxy(BUSNAME, BUSPATH)
       this.pinnedOnly = this.plankConf.get_boolean('pinned-only')
 
       this.launcher.install()
