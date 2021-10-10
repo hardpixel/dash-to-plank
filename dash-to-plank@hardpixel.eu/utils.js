@@ -7,8 +7,12 @@ function fileExists(path) {
   return GLib.file_test(path, GLib.FileTest.EXISTS)
 }
 
-function userPath(path) {
+function userDir(path) {
   return GLib.build_filenamev([GLib.get_home_dir(), path])
+}
+
+function userDataDir(path) {
+  return GLib.build_filenamev([GLib.get_user_data_dir(), path])
 }
 
 function mkdir(path) {

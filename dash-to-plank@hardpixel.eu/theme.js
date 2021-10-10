@@ -1,8 +1,9 @@
-const GLib = imports.gi.GLib
-const Main = imports.ui.main
-const Me   = imports.misc.extensionUtils.getCurrentExtension()
+const GLib  = imports.gi.GLib
+const Main  = imports.ui.main
+const Me    = imports.misc.extensionUtils.getCurrentExtension()
+const Utils = Me.imports.utils
 
-const THEMES_DIR = GLib.build_filenamev([GLib.get_user_data_dir(), 'plank/themes'])
+const THEMES_DIR = Utils.userDataDir('plank/themes')
 
 var PlankTheme = class PlankTheme {
   constructor(settings) {
@@ -10,7 +11,7 @@ var PlankTheme = class PlankTheme {
     this.settings = settings
 
     this.name = 'DashToPlank'
-    this.file = GLib.build_filenamev([Me.path, 'templates', 'dock.theme'])
+    this.file = Utils.templatePath('dock.theme')
     this.dest = GLib.build_filenamev([THEMES_DIR, this.name, 'dock.theme'])
     this.keys = new GLib.KeyFile()
 
@@ -57,9 +58,7 @@ var PlankTheme = class PlankTheme {
       this.settings.connect('changed::alignment', this.update.bind(this))
     ]
 
-    const themeDir = GLib.path_get_dirname(this.dest)
-    GLib.mkdir_with_parents(themeDir, parseInt('0700', 8))
-
+    Utils.mkdir(GLib.path_get_dirname(this.dest))
     this.update()
   }
 

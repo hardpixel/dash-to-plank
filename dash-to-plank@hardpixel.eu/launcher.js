@@ -4,8 +4,8 @@ const Main  = imports.ui.main
 const Me    = imports.misc.extensionUtils.getCurrentExtension()
 const Utils = Me.imports.utils
 
-const APPS_DIR = Utils.userPath('.local/share/applications')
-const ICON_DIR = Utils.userPath('.icons/hicolor/scalable/apps')
+const APPS_DIR = Utils.userDataDir('applications')
+const ICON_DIR = Utils.userDir('.icons/hicolor/scalable/apps')
 
 var AppsLauncher = class AppsLauncher {
   constructor() {
