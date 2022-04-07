@@ -4,7 +4,7 @@
   "url": "https://github.com/hardpixel/dash-to-plank",
   "settings-schema": "org.gnome.shell.extensions.dash-to-plank",
   "gettext-domain": "dash-to-plank",
-  "version": 12,
+  "version": 13,
   "name": "Dash to Plank",
   "description": "GNOME Shell integration for Plank, the simplest dock on the planet. To use this extension, you must have Plank installed on your system.\n\nThis extension depends on Plank. To install it:\n- Debian/Ubuntu: apt install plank\n- Fedora/RHEL: dnf install plank\n- Arch: pacman -S plank\n\n** This extension does NOT WORK on WAYLAND."
 }
