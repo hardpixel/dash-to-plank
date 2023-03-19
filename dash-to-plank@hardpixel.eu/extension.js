@@ -253,13 +253,7 @@ var DashToPlank = GObject.registerClass(
       })
     }
 
-    activate() {
-      try {
-        GLib.spawn_command_line_async('plank')
-      } catch (e) {
-        return Main.notifyError(Me.metadata['name'], 'Plank is not available on your system.')
-      }
-
+    _onPlankStarted() {
       this.plankConf  = Convenience.getPlankSettings(DOCK_ID)
       this.dockTheme  = new PlankTheme(this.plankConf)
       this.plankDbus  = Utils.dbusProxy(BUSNAME, BUSPATH)
@@ -280,6 +274,17 @@ var DashToPlank = GObject.registerClass(
         'changed::show-apps-icon',
         this._toggleAppsLauncher.bind(this)
       )
+    }
+
+    activate() {
+      GLib.idle_add(GLib.PRIORITY_LOW, () => {
+        try {
+          GLib.spawn_command_line_async('plank')
+          this._onPlankStarted()
+        } catch (e) {
+          Main.notifyError(Me.metadata['name'], 'Plank is not available on your system.')
+        }
+      })
     }
 
     destroy() {
