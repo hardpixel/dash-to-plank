@@ -1,54 +1,55 @@
-const Bytes = imports.byteArray
-const Gio   = imports.gi.Gio
-const GLib  = imports.gi.GLib
-const Me    = imports.misc.extensionUtils.getCurrentExtension()
+import Gio from 'gi://Gio'
+import GLib from 'gi://GLib'
+import { Extension } from 'resource:///org/gnome/shell/extensions/extension.js'
 
-function fileExists(path) {
+export function fileExists(path) {
   return GLib.file_test(path, GLib.FileTest.EXISTS)
 }
 
-function userDir(path) {
+export function userDir(path) {
   return GLib.build_filenamev([GLib.get_home_dir(), path])
 }
 
-function userDataDir(path) {
+export function userDataDir(path) {
   return GLib.build_filenamev([GLib.get_user_data_dir(), path])
 }
 
-function mkdir(path) {
+export function mkdir(path) {
   if (!fileExists(path)) {
     GLib.mkdir_with_parents(path, parseInt('0700', 8))
   }
 }
 
-function copyFile(source, destination) {
+export function copyFile(source, destination) {
   const src  = Gio.file_new_for_path(source)
   const dest = Gio.file_new_for_path(destination)
 
   src.copy(dest, Gio.FileCopyFlags.OVERWRITE, null, null)
 }
 
-function copyTemplate(filename, dest) {
+export function copyTemplate(filename, dest) {
   const src = templatePath(filename)
   copyFile(src, dest)
 }
 
-function templatePath(filename) {
+export function templatePath(filename) {
+  const Me = Extension.lookupByURL(import.meta.url)
   return GLib.build_filenamev([Me.path, 'templates', filename])
 }
 
-function interfacePath(filename) {
+export function interfacePath(filename) {
+  const Me = Extension.lookupByURL(import.meta.url)
   return GLib.build_filenamev([Me.path, 'interfaces', `${filename}.xml`])
 }
 
-function interfaceXML(filename) {
+export function interfaceXML(filename) {
   const path = interfacePath(filename)
   const data = GLib.file_get_contents(path)
 
-  return Bytes.toString(data[1])
+  return String.fromCharCode(...data[1])
 }
 
-function dbusProxy(busName, busPath) {
+export function dbusProxy(busName, busPath) {
   try {
     const DBusIFace = interfaceXML(busName)
     const DBusProxy = Gio.DBusProxy.makeProxyWrapper(DBusIFace)
@@ -59,11 +60,23 @@ function dbusProxy(busName, busPath) {
   }
 }
 
-function dbusObject(busName, busPath, context) {
+export function dbusObject(busName, busPath, context) {
   const iface  = interfaceXML(busName)
   const object = Gio.DBusExportedObject.wrapJSObject(iface, context)
 
   object.export(Gio.DBus.session, busPath)
 
   return object
+}
+
+export function getPlankSettings(dock_id) {
+  const schemaSource = Gio.SettingsSchemaSource.get_default()
+  const schemaObj    = schemaSource.lookup('net.launchpad.plank.dock.settings', true)
+  const schemaPath   = `/net/launchpad/plank/docks/${dock_id}/`
+
+  if (schemaObj) {
+    return new Gio.Settings({ settings_schema: schemaObj, path: schemaPath })
+  } else {
+    throw new Error('Plank schema not found. Please check your installation.')
+  }
 }

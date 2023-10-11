@@ -1,11 +1,10 @@
-const GLib  = imports.gi.GLib
-const Main  = imports.ui.main
-const Me    = imports.misc.extensionUtils.getCurrentExtension()
-const Utils = Me.imports.utils
+import GLib from 'gi://GLib'
+import * as Main from 'resource:///org/gnome/shell/ui/main.js'
+import * as Utils from './utils.js'
 
 const THEMES_DIR = Utils.userDataDir('plank/themes')
 
-var PlankTheme = class PlankTheme {
+export class PlankTheme {
   constructor(settings) {
     this.handlers = []
     this.settings = settings

@@ -1,8 +1,7 @@
-const GLib  = imports.gi.GLib
-const Gio   = imports.gi.Gio
-const Main  = imports.ui.main
-const Me    = imports.misc.extensionUtils.getCurrentExtension()
-const Utils = Me.imports.utils
+import GLib from 'gi://GLib'
+import Gio from 'gi://Gio'
+import * as Main from 'resource:///org/gnome/shell/ui/main.js'
+import * as Utils from './utils.js'
 
 const APPS_DIR = Utils.userDataDir('applications')
 const ICON_DIR = Utils.userDir('.icons/hicolor/scalable/apps')
@@ -39,7 +38,7 @@ class DbusInterface {
   }
 }
 
-var AppsLauncher = class AppsLauncher {
+export class AppsLauncher {
   constructor() {
     this.name = 'net.launchpad.plank.AppsLauncher'
     this.file = Utils.templatePath('apps-file.desktop')
