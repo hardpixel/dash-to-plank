@@ -15,8 +15,8 @@ class DbusInterface {
   }
 
   disable() {
-    this.dbus.flush()
-    this.dbus.unexport()
+    this.dbus?.flush()
+    this.dbus?.unexport()
 
     delete this.dbus
   }
@@ -73,10 +73,10 @@ export class AppsLauncher {
     Utils.copyTemplate('apps-icon.svg', this.icon)
     this.keys.save_to_file(this.dest)
 
-    this.dbus.enable()
+    this.dbus?.enable()
   }
 
   destroy() {
-    this.dbus.disable()
+    this.dbus?.disable()
   }
 }
