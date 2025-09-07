@@ -1,6 +1,6 @@
 {
   "name": "dash-to-plank",
-  "version": "19",
+  "version": "20",
   "description": "GNOME Shell integration for Plank",
   "repository": "https://github.com/hardpixel/dash-to-plank",
   "author": "Jonian Guveli",
